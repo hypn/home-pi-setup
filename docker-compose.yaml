@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    network_mode: "host"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+    environment:
+      TZ: 'Africa/Johannesburg'
+    volumes:
+      - '/home/pi/pihole/etc-pihole/:/etc/pihole/'
+      - '/home/pi/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    restart: unless-stopped
+
+  home-assistant:
+    container_name: home-assistant
+    image: homeassistant/home-assistant:stable
+    network_mode: "host"
+    environment:
+      TZ: 'Africa/Johannesburg'
+    volumes:
+      - '/home/pi/home-assistant:/config'
+      - '/etc/localtime:/etc/localtime:ro'
+    restart: unless-stopped
