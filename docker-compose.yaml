@@ -10,12 +10,12 @@ services:
       - "53:53/udp"
       - "67:67/udp"
       - "80:80/tcp"
-      - "443:443/tcp"
     environment:
       TZ: 'Africa/Johannesburg'
     volumes:
       - '/home/pi/pihole/etc-pihole/:/etc/pihole/'
       - '/home/pi/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - '/home/pi/washing-machine:/var/www/html/washing-machine/'
     restart: unless-stopped
 
   home-assistant:
@@ -27,4 +27,26 @@ services:
     volumes:
       - '/home/pi/home-assistant:/config'
       - '/etc/localtime:/etc/localtime:ro'
+    restart: unless-stopped
+
+  mariadb:
+    # for Kodi library
+    container_name: mariadb
+    image: yobasystems/alpine-mariadb:latest
+    ports:
+      - "3306:3306/tcp"
+    volumes:
+      - '/home/pi/mysql:/var/lib/mysql'
+    restart: unless-stopped
+
+  cron:
+    # updates washing-machine status.json
+    container_name: cron
+    image: alpine:latest
+    volumes:
+      - '/home/pi/cron:/cron'
+      - '/home/pi/washing-machine/status.json:/cron/status.json'
+    #  - '/home/pi/cron/crontab.txt:/var/spool/cron/crontabs/root'
+    #entrypoint: "crond -l 2 -f"
+    entrypoint: "sh /cron/startup.sh"
     restart: unless-stopped
